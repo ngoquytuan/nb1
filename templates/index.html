@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Filter Demo - Anti-Scam Chat System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🛡️ Spam Filter Demo</h1>
+            <p>AI-Powered Anti-Scam Chat System</p>
+            <div class="status-indicator" id="connectionStatus">
+                <span class="status-dot offline"></span>
+                <span>Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Panel: Chat Interface -->
+            <div class="panel chat-panel">
+                <h2>💬 Send Message</h2>
+                
+                <form id="messageForm" class="message-form">
+                    <div class="form-group">
+                        <label for="sender">Sender Name:</label>
+                        <input type="text" id="sender" name="sender" placeholder="Your name..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message:</label>
+                        <textarea id="message" name="message" rows="4" 
+                                placeholder="Type your message here..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+
+                <!-- Quick Test Messages -->
+                <div class="quick-tests">
+                    <h3>🧪 Quick Tests</h3>
+                    <div class="test-buttons">
+                        <button class="btn btn-small btn-success" onclick="sendTestMessage('legitimate')">
+                            ✅ Legitimate
+                        </button>
+                        <button class="btn btn-small btn-warning" onclick="sendTestMessage('suspicious')">
+                            ⚠️ Suspicious
+                        </button>
+                        <button class="btn btn-small btn-danger" onclick="sendTestMessage('spam')">
+                            ❌ Spam
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Processing Status -->
+                <div id="processingStatus" class="processing-status" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <span>Processing message...</span>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div class="panel results-panel">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-button active" onclick="showTab('inbox')">
+                        📥 Inbox
+                    </button>
+                    <button class="tab-button" onclick="showTab('flagged')">
+                        ⚠️ Flagged
+                    </button>
+                    <button class="tab-button" onclick="showTab('blocked')">
+                        🚫 Blocked
+                    </button>
+                    <button class="tab-button" onclick="showTab('admin')">
+                        🔧 Admin
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="inbox-tab" class="tab-content active">
+                    <h3>📥 Clean Messages</h3>
+                    <div id="inboxMessages" class="message-list">
+                        <p class="empty-state">No messages yet...</p>
+                    </div>
+                </div>
+
+                <div id="flagged-tab" class="tab-content">
+                    <h3>⚠️ Flagged Messages</h3>
+                    <div id="flaggedMessages" class="message-list">
+                        <p class="empty-state">No flagged messages...</p>
+                    </div>
+                </div>
+
+                <div id="blocked-tab" class="tab-content">
+                    <h3>🚫 Blocked Messages</h3>
+                    <div id="blockedMessages" class="message-list">
+                        <p class="empty-state">No blocked messages...</p>
+                    </div>
+                </div>
+
+                <div id="admin-tab" class="tab-content">
+                    <h3>🔧 Admin Panel</h3>
+                    <div class="admin-controls">
+                        <button class="btn btn-info" onclick="refreshAllData()">
+                            🔄 Refresh All
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportLogs()">
+                            📊 Export Logs
+                        </button>
+                    </div>
+                    <div id="adminMessages" class="message-list admin-list">
+                        <p class="empty-state">Loading admin data...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Total Processed:</span>
+                <span id="totalProcessed" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Legitimate:</span>
+                <span id="legitimateCount" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Suspicious:</span>
+                <span id="suspiciousCount" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Blocked:</span>
+                <span id="blockedCount" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
